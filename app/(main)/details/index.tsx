@@ -1,79 +1,111 @@
-import { Image, Platform } from "react-native";
+import React, { useCallback } from "react";
+import { Image, Linking, ScrollView, Text, View } from "react-native";
+import { useStyles } from "react-native-unistyles";
+import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Toolbar from "@/components/toolbar";
+import { ArticleType } from "@/types/home";
+import { useLocalSearchParams } from "expo-router";
 
-import { HelloWave } from "@/components/HelloWave";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { createStyleSheet } from "react-native-unistyles";
+const DetailsPage: React.FC = () => {
+  const { d } = useLocalSearchParams();
+  const article: ArticleType = JSON.parse(d as string);
+  const { t } = useTranslation();
+  const { top, bottom } = useSafeAreaInsets();
+  const { styles } = useStyles((theme: any) => ({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+      paddingBottom: bottom,
+    },
+    toolbar: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: theme.spacing.md,
+      backgroundColor: theme.colors.primary,
+      paddingTop: top + theme.spacing.md,
+    },
+    toolbarTitle: {
+      color: "white",
+      fontSize: 18,
+      fontWeight: "bold",
+    },
 
-export default function HomeScreen() {
+    scrollContainer: {
+      padding: 16,
+      backgroundColor: "#fff",
+      minHeight: "95%",
+    },
+    image: {
+      width: "100%",
+      height: 200,
+      marginBottom: 16,
+      borderRadius: 8,
+    },
+    title: {
+      fontSize: 22,
+      fontWeight: "bold",
+      marginBottom: 8,
+    },
+    author: {
+      fontSize: 14,
+      color: "#555",
+      marginBottom: 8,
+    },
+    description: {
+      fontSize: 16,
+      color: "#333",
+      marginBottom: 12,
+    },
+    content: {
+      fontSize: 14,
+      color: "#333",
+      lineHeight: 22,
+      marginBottom: 16,
+    },
+    source: {
+      fontSize: 12,
+      color: "#777",
+      marginBottom: 16,
+    },
+    link: {
+      fontSize: 16,
+      color: "#0066cc",
+      textDecorationLine: "underline",
+    },
+  }));
+
+  const handleOpenUrl = useCallback(() => {
+    Linking.openURL(article.url);
+  }, []);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={
-        <Image
-          source={require("@/assets/images/partial-react-logo.png")}
-          style={styles.reactLogo}
-        />
-      }
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-          to see changes. Press{" "}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: "cmd + d",
-              android: "cmd + m",
-              web: "F12",
-            })}
-          </ThemedText>{" "}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this
-          starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{" "}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText>{" "}
-          to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{" "}
-          directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
-}
+    <View style={styles.container}>
+      <Toolbar title={article.title} withBack />
 
-const styles = createStyleSheet({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-  },
-});
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Image source={{ uri: article.urlToImage }} style={styles.image} />
+
+        <Text style={styles.title}>{article.title}</Text>
+
+        <Text style={styles.author}>
+          By {article.author} |{" "}
+          {new Date(article.publishedAt).toLocaleDateString()}
+        </Text>
+
+        <Text style={styles.description}>{article.description}</Text>
+
+        <Text style={styles.content}>{article.content}</Text>
+
+        <Text style={styles.source}>Source: {article.source.name}</Text>
+
+        <Text style={styles.link} onPress={handleOpenUrl}>
+          Read more
+        </Text>
+      </ScrollView>
+    </View>
+  );
+};
+
+export default DetailsPage;
