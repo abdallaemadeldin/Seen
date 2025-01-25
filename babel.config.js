@@ -1,9 +1,6 @@
-module.exports = function (api) {
-    api.cache(true)
-  
-    return {
-      plugins: [
-          ['react-native-unistyles/plugin']
-      ]
-    }
-  }
+module.exports = {
+  presets: ['babel-preset-expo'],
+  plugins: [
+    'babel-plugin-react-native-unistyles'
+  ]
+}
