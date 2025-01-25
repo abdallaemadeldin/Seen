@@ -1,79 +1,168 @@
-import { Image, Platform } from "react-native";
-import { createStyleSheet } from "react-native-unistyles";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useStyles } from "react-native-unistyles";
+import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Toolbar from "@/components/toolbar";
+import { fetchNews } from "@/services/controllers/home";
+import { ArticleType } from "@/types/home";
+import ArticleCard from "@/components/news-card";
 
-import { HelloWave } from "@/components/HelloWave";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+const HomePage: React.FC = () => {
+  const [articles, setArticles] = useState<ArticleType[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>();
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={
-        <Image
-          source={require("@/assets/images/partial-react-logo.png")}
-          style={styles.reactLogo}
-        />
-      }
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-          to see changes. Press{" "}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: "cmd + d",
-              android: "cmd + m",
-              web: "F12",
-            })}
-          </ThemedText>{" "}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this
-          starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{" "}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText>{" "}
-          to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{" "}
-          directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const { t } = useTranslation();
+  const { top, bottom } = useSafeAreaInsets();
+  const { styles } = useStyles((theme: any) => ({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    toolbar: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: theme.spacing.md,
+      backgroundColor: theme.colors.primary,
+      paddingTop: top + theme.spacing.md,
+    },
+    toolbarTitle: {
+      color: "white",
+      fontSize: 18,
+      fontWeight: "bold",
+    },
+    errorText: {
+      color: theme.colors.text,
+      fontSize: 14,
+      textAlign: "center",
+    },
+    errorContainer: {
+      backgroundColor: theme.colors.card,
+      padding: theme.spacing.sm,
+      borderRadius: 5,
+      marginBottom: theme.spacing.sm,
+    },
+    separator: {
+      width: "100%",
+      height: 1,
+      backgroundColor: "#0002",
+      marginVertical: theme.spacing.md,
+    },
+    loadingText: {
+      color: theme.colors.text,
+      fontSize: 14,
+      textAlign: "center",
+    },
+    buttonText: {
+      color: theme.colors.card,
+      fontSize: 16,
+      fontWeight: "bold",
+      textAlign: "center",
+    },
+    button: {
+      width: "50%",
+      alignSelf: "center",
+      backgroundColor: theme.colors.primary,
+      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.lg,
+      borderRadius: 8,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+  }));
+
+  const fetchContent = useCallback(() => {
+    setLoading(true);
+    setError(undefined);
+    fetchNews({
+      params: {
+        country: "us",
+        apiKey: "97815c3a12ad4fe495624e475fa77ff1",
+        category: "sport",
+      },
+    })
+      .then((response) => {
+        setArticles(response.data.articles);
+      })
+      .catch((error) => {
+        setError(
+          error?.response?.error ??
+            error?.response?.data?.message ??
+            error?.response?.data?.error ??
+            "Failed to load the news."
+        );
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetchContent();
+  }, []);
+
+  const renderItem = useCallback(
+    ({ item, index }: { item: ArticleType; index: number }) => {
+      return <ArticleCard article={item} key={index} />;
+    },
+    []
   );
-}
 
-const styles = createStyleSheet({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-  },
-});
+  const content = useMemo(() => {
+    if (loading) {
+      return (
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            height: "85%",
+          }}
+        >
+          <ActivityIndicator size="large" color="#000" />
+          <Text style={styles.loadingText}>{t("common.loading")}</Text>
+        </View>
+      );
+    } else if (error != null) {
+      return (
+        <View style={styles.container}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity style={styles.button} onPress={fetchContent}>
+            <Text style={styles.buttonText}>{t("common.retry")}</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    } else {
+      return (
+        <FlatList
+          data={articles}
+          renderItem={renderItem}
+          keyExtractor={(_, index) => index.toString()}
+          ListEmptyComponent={() => (
+            <Text style={{ alignSelf: "center", marginTop: 20 }}>
+              {t("news.empty")}
+            </Text>
+          )}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+        />
+      );
+    }
+  }, [loading, error, articles, renderItem]);
+
+  return (
+    <View style={{ ...styles.container, paddingBottom: bottom }}>
+      <Toolbar />
+
+      {content}
+    </View>
+  );
+};
+
+export default HomePage;
