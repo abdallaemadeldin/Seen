@@ -1,0 +1,15 @@
+{
+    "translation": {
+        "header": {
+            "title": "USA News"
+        },
+        "common": {
+            "loading": "Loading",
+            "retry": "Retry",
+            "back": "Back"
+        },
+        "news": {
+            "empty": "No results found"
+        }
+    }
+}
