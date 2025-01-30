@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useStyles } from "react-native-unistyles";
+import { createStyleSheet, useStyles } from "react-native-unistyles";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toolbar from "@/components/toolbar";
@@ -21,63 +21,7 @@ const HomePage: React.FC = () => {
 
   const { t } = useTranslation();
   const { top, bottom } = useSafeAreaInsets();
-  const { styles } = useStyles((theme: any) => ({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-    },
-    toolbar: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      padding: theme.spacing.md,
-      backgroundColor: theme.colors.primary,
-      paddingTop: top + theme.spacing.md,
-    },
-    toolbarTitle: {
-      color: "white",
-      fontSize: 18,
-      fontWeight: "bold",
-    },
-    errorText: {
-      color: theme.colors.text,
-      fontSize: 14,
-      textAlign: "center",
-    },
-    errorContainer: {
-      backgroundColor: theme.colors.card,
-      padding: theme.spacing.sm,
-      borderRadius: 5,
-      marginBottom: theme.spacing.sm,
-    },
-    separator: {
-      width: "100%",
-      height: 1,
-      backgroundColor: "#0002",
-      marginVertical: theme.spacing.md,
-    },
-    loadingText: {
-      color: theme.colors.text,
-      fontSize: 14,
-      textAlign: "center",
-    },
-    buttonText: {
-      color: theme.colors.card,
-      fontSize: 16,
-      fontWeight: "bold",
-      textAlign: "center",
-    },
-    button: {
-      width: "50%",
-      alignSelf: "center",
-      backgroundColor: theme.colors.primary,
-      paddingVertical: theme.spacing.md,
-      paddingHorizontal: theme.spacing.lg,
-      borderRadius: 8,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-  }));
+  const { styles } = useStyles(stylesheet);
 
   const fetchContent = useCallback(() => {
     setLoading(true);
@@ -164,5 +108,63 @@ const HomePage: React.FC = () => {
     </View>
   );
 };
+
+const stylesheet = createStyleSheet((theme: any) => ({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  toolbar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: theme.spacing.md,
+    backgroundColor: theme.colors.primary,
+    paddingTop: top + theme.spacing.md,
+  },
+  toolbarTitle: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  errorText: {
+    color: theme.colors.text,
+    fontSize: 14,
+    textAlign: "center",
+  },
+  errorContainer: {
+    backgroundColor: theme.colors.card,
+    padding: theme.spacing.sm,
+    borderRadius: 5,
+    marginBottom: theme.spacing.sm,
+  },
+  separator: {
+    width: "100%",
+    height: 1,
+    backgroundColor: "#0002",
+    marginVertical: theme.spacing.md,
+  },
+  loadingText: {
+    color: theme.colors.text,
+    fontSize: 14,
+    textAlign: "center",
+  },
+  buttonText: {
+    color: theme.colors.card,
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  button: {
+    width: "50%",
+    alignSelf: "center",
+    backgroundColor: theme.colors.primary,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+}));
 
 export default HomePage;

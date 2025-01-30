@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { useStyles } from "react-native-unistyles";
+import { createStyleSheet, useStyles } from "react-native-unistyles";
 import { useTranslation } from "react-i18next";
 import LanguageDropdown from "@/components/language-switcher";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -13,22 +13,7 @@ const Toolbar: React.FC<{ title?: string; withBack?: boolean }> = ({
   const { t } = useTranslation();
   const { back } = useRouter();
   const { top } = useSafeAreaInsets();
-  const { styles } = useStyles((theme: any) => ({
-    toolbar: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      padding: theme.spacing.md,
-      backgroundColor: theme.colors.primary,
-      paddingTop: top + theme.spacing.md,
-    },
-    toolbarTitle: {
-      color: "white",
-      fontSize: withBack ? 16 : 18,
-      fontWeight: "bold",
-      maxWidth: "90%",
-    },
-  }));
+  const { styles } = useStyles(stylesheet);
 
   return (
     <View style={styles.toolbar}>
@@ -39,12 +24,32 @@ const Toolbar: React.FC<{ title?: string; withBack?: boolean }> = ({
       ) : (
         <></>
       )}
-      <Text style={styles.toolbarTitle} numberOfLines={1}>
+      <Text
+        style={[styles.toolbarTitle, { fontSize: withBack ? 16 : 18 }]}
+        numberOfLines={1}
+      >
         {title ?? t("header.title")}
       </Text>
       {withBack ? <></> : <LanguageDropdown />}
     </View>
   );
 };
+
+const stylesheet = createStyleSheet((theme: any) => ({
+  toolbar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: theme.spacing.md,
+    backgroundColor: theme.colors.primary,
+    paddingTop: top + theme.spacing.md,
+  },
+  toolbarTitle: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+    maxWidth: "90%",
+  },
+}));
 
 export default Toolbar;
